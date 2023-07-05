@@ -12,7 +12,7 @@ def perror(s: Union[str, Any], e: Union[BaseException, str]):
         if isinstance(e, OSError) and e.strerror is not None:
             strerror = e.strerror
         else:
-            e.__class__.__name__
+            strerror = e.__class__.__name__
     else:
         strerror = e
     print(f"{s}{': ' if s else ''}{strerror}", file = sys.stderr)
@@ -49,7 +49,9 @@ def make_relative(path: Path, dry_run: bool = True, resolve: bool = False) -> No
                               # lest `dest` be relative to cwd
                               # if `dest` is absolute this is a no-op
 
-    # now make the parents of both `dest` and `path` at least absolute, if not resolving any symlink segments
+    # now make the parents of both `dest` and `path` relative to a common location.
+    # the easiest way to do this is to make them both relative to the root directory.
+    # if requested, resolve any symlink segments via Path.resolve
     if resolve:
         parent_normaliser = Path.resolve
     else:
@@ -70,7 +72,7 @@ def main() -> None:
 
     dry_run: bool = args.dry_run
     resolve: bool = args.resolve
-    paths: List[path] = args.paths
+    paths: List[Path] = args.paths
 
     for path in paths:
         try:
